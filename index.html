@@ -1,0 +1,255 @@
+<!doctype html>
+<html lang="en-NZ">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="CLC Tools">
+<meta name="theme-color" content="#1B2D4A">
+<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="manifest" href="manifest.json">
+<title>CLC Tools</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --ink:          #0A0B0A;
+  --paper:        #F4F2EC;
+  --volt:         #DEFF3F;
+  --terra:        #C8442A;
+  --navy:         #1B2D4A;
+  --navy-deep:    #152338;
+  --graphite-50:  #EDEAE2;
+  --graphite-100: #E0DCD2;
+  --graphite-200: #C9C4B8;
+  --graphite-300: #ADA89C;
+  --graphite-400: #8F8A7E;
+  --graphite-500: #6F6B62;
+  --graphite-600: #4F4C46;
+  --graphite-700: #34322E;
+  --font-sans: 'Geist', ui-sans-serif, -apple-system, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, Menlo, monospace;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html, body {
+  min-height: 100%;
+  background: var(--graphite-100);
+  font-family: var(--font-sans);
+  color: var(--ink);
+  -webkit-font-smoothing: antialiased;
+}
+body { padding-bottom: env(safe-area-inset-bottom, 24px); }
+
+/* Header */
+.header {
+  background: var(--navy);
+  border-bottom: 3px solid var(--volt);
+  padding: 16px 16px 14px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.logo { width: 36px; height: 36px; flex-shrink: 0; }
+.header-title {
+  font-weight: 800;
+  font-size: 20px;
+  letter-spacing: -0.02em;
+  color: var(--paper);
+  line-height: 1;
+}
+.header-sub {
+  font-family: var(--font-mono);
+  font-size: 8px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: rgba(244,242,236,0.38);
+  margin-top: 4px;
+}
+
+/* Sections */
+.section { padding: 20px 12px 4px; }
+.section-label {
+  font-family: var(--font-mono);
+  font-size: 8px;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--graphite-400);
+  padding: 0 4px;
+  margin-bottom: 8px;
+}
+
+/* Tool list */
+.tool-list { display: flex; flex-direction: column; gap: 1px; background: var(--graphite-200); border: 1px solid var(--graphite-200); }
+
+.tool-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: var(--paper);
+  padding: 15px 14px;
+  text-decoration: none;
+  color: var(--ink);
+  -webkit-tap-highlight-color: transparent;
+  transition: background 100ms;
+  gap: 12px;
+}
+.tool-item:active { background: var(--graphite-50); }
+
+.tool-item-left { display: flex; align-items: center; gap: 12px; min-width: 0; }
+
+.tool-icon {
+  width: 36px;
+  height: 36px;
+  background: var(--navy);
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.tool-icon svg { width: 18px; height: 18px; }
+
+.tool-text { min-width: 0; }
+.tool-name {
+  font-weight: 600;
+  font-size: 15px;
+  letter-spacing: -0.01em;
+  color: var(--ink);
+  line-height: 1.2;
+}
+.tool-desc {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  color: var(--graphite-400);
+  margin-top: 3px;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.tool-chevron {
+  color: var(--graphite-300);
+  flex-shrink: 0;
+}
+
+/* Coming soon */
+.tool-item.soon { opacity: 0.45; pointer-events: none; }
+.tool-item.soon .tool-desc::after { content: ' — coming soon'; }
+
+/* Footer */
+.footer {
+  padding: 28px 16px 12px;
+  text-align: center;
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--graphite-300);
+}
+</style>
+</head>
+<body>
+
+<header class="header">
+  <svg class="logo" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <rect width="100" height="100" fill="#1B2D4A"/>
+    <line x1="14" y1="14" x2="50" y2="14" stroke="#F4F2EC" stroke-width="10" stroke-linecap="square"/>
+    <line x1="14" y1="14" x2="14" y2="86" stroke="#F4F2EC" stroke-width="10" stroke-linecap="square"/>
+    <line x1="14" y1="86" x2="70" y2="86" stroke="#F4F2EC" stroke-width="10" stroke-linecap="square"/>
+    <rect x="36" y="44" width="12" height="12" fill="#DEFF3F"/>
+  </svg>
+  <div>
+    <div class="header-title">CLC Tools</div>
+    <div class="header-sub">Chris Lines Coaching</div>
+  </div>
+</header>
+
+<!-- Calculators -->
+<div class="section">
+  <div class="section-label">Calculators</div>
+  <div class="tool-list">
+
+    <a class="tool-item" href="performance-calculator/">
+      <div class="tool-item-left">
+        <div class="tool-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#DEFF3F" stroke-width="1.5" stroke-linecap="square" stroke-linejoin="miter">
+            <path d="M3 17l4-8 4 5 3-4 4 7"/>
+            <line x1="3" y1="20" x2="21" y2="20"/>
+          </svg>
+        </div>
+        <div class="tool-text">
+          <div class="tool-name">Performance Calculator</div>
+          <div class="tool-desc">VDOT · WA Score · Training Zones</div>
+        </div>
+      </div>
+      <svg class="tool-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square"><path d="M9 6l6 6-6 6"/></svg>
+    </a>
+
+    <a class="tool-item" href="gel-calculator/">
+      <div class="tool-item-left">
+        <div class="tool-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#DEFF3F" stroke-width="1.5" stroke-linecap="square" stroke-linejoin="miter">
+            <path d="M9 3h6l2 6H7L9 3z"/>
+            <path d="M7 9c0 6 2 9 5 12 3-3 5-6 5-12"/>
+          </svg>
+        </div>
+        <div class="tool-text">
+          <div class="tool-name">Carb Calculator</div>
+          <div class="tool-desc">Gel · Hydrogel Drink Mix · Electrolytes</div>
+        </div>
+      </div>
+      <svg class="tool-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square"><path d="M9 6l6 6-6 6"/></svg>
+    </a>
+
+    <a class="tool-item soon" href="#">
+      <div class="tool-item-left">
+        <div class="tool-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#DEFF3F" stroke-width="1.5" stroke-linecap="square" stroke-linejoin="miter">
+            <rect x="3" y="3" width="18" height="18"/>
+            <line x1="3" y1="9" x2="21" y2="9"/>
+            <line x1="9" y1="9" x2="9" y2="21"/>
+          </svg>
+        </div>
+        <div class="tool-text">
+          <div class="tool-name">Treadmill Calculator</div>
+          <div class="tool-desc">Pace conversion · Effort equivalence</div>
+        </div>
+      </div>
+      <svg class="tool-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square"><path d="M9 6l6 6-6 6"/></svg>
+    </a>
+
+  </div>
+</div>
+
+<!-- Sessions -->
+<div class="section">
+  <div class="section-label">Sessions</div>
+  <div class="tool-list">
+
+    <a class="tool-item" href="workout-library/">
+      <div class="tool-item-left">
+        <div class="tool-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#DEFF3F" stroke-width="1.5" stroke-linecap="square" stroke-linejoin="miter">
+            <line x1="4" y1="6" x2="20" y2="6"/>
+            <line x1="4" y1="12" x2="14" y2="12"/>
+            <line x1="4" y1="18" x2="17" y2="18"/>
+          </svg>
+        </div>
+        <div class="tool-text">
+          <div class="tool-name">Workout Library</div>
+          <div class="tool-desc">Fartlek · Lactate Threshold · VO2 Max</div>
+        </div>
+      </div>
+      <svg class="tool-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square"><path d="M9 6l6 6-6 6"/></svg>
+    </a>
+
+  </div>
+</div>
+
+<div class="footer">Chris Lines Coaching</div>
+
+</body>
+</html>
