@@ -1,0 +1,834 @@
+<!doctype html>
+<html lang="en-NZ">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#1B2D4A">
+<link rel="apple-touch-icon" href="../icon-180.png">
+<title>Performance Calculator — CLC Tools</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+:root {
+  --ink:          #0A0B0A;
+  --paper:        #F4F2EC;
+  --volt:         #DEFF3F;
+  --terra:        #C8442A;
+  --navy:         #1B2D4A;
+  --graphite-50:  #EDEAE2;
+  --graphite-100: #E0DCD2;
+  --graphite-200: #C9C4B8;
+  --graphite-300: #ADA89C;
+  --graphite-400: #8F8A7E;
+  --graphite-500: #6F6B62;
+  --graphite-600: #4F4C46;
+  --graphite-700: #34322E;
+  --graphite-800: #1F1E1B;
+  --fg-1: var(--ink);
+  --fg-2: var(--graphite-600);
+  --fg-3: var(--graphite-400);
+  --bg-canvas:   var(--paper);
+  --bg-elevated: #FAF8F2;
+  --rule:        var(--graphite-300);
+  --rule-strong: var(--graphite-600);
+  --hairline:        1px solid var(--rule);
+  --hairline-strong: 1px solid var(--rule-strong);
+  --font-sans: 'Geist', ui-sans-serif, -apple-system, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, 'SFMono-Regular', Menlo, monospace;
+  --t-h3: 18px; --t-h4: 15px; --t-body: 15px; --t-body-sm: 13px; --t-micro: 10px;
+  --s-1:4px;--s-2:8px;--s-3:12px;--s-4:16px;--s-5:20px;--s-6:24px;--s-8:32px;
+  --r-2: 4px;
+  --ease: cubic-bezier(0.2,0,0,1);
+  --t-fast: 120ms;
+}
+*,*::before,*::after{box-sizing:border-box;}
+html,body{
+  margin:0;padding:0;
+  background:var(--graphite-100);
+  font-family:var(--font-sans);
+  color:var(--ink);
+  font-size:var(--t-body);
+  -webkit-font-smoothing:antialiased;
+  text-rendering:optimizeLegibility;
+}
+body { padding-bottom: env(safe-area-inset-bottom, 24px); }
+
+/* Header */
+.header {
+  background: var(--navy);
+  border-bottom: 3px solid var(--volt);
+  padding: 12px 16px;
+  display: flex; align-items: center; gap: 10px;
+  position: sticky; top: 0; z-index: 100;
+}
+.back-btn {
+  display:flex;align-items:center;justify-content:center;
+  width:32px;height:32px;background:none;border:none;cursor:pointer;
+  color:var(--graphite-300);flex-shrink:0;
+  -webkit-tap-highlight-color:transparent;padding:0;margin-left:-4px;
+}
+.header-logo { width:24px;height:24px;flex-shrink:0; }
+.header-title { font-weight:800;font-size:15px;letter-spacing:-0.02em;color:var(--paper);line-height:1; }
+.header-sub { font-family:var(--font-mono);font-size:8px;letter-spacing:0.18em;text-transform:uppercase;color:rgba(244,242,236,0.38);margin-top:3px; }
+
+/* Layout */
+.wrap { max-width: 640px; margin: 0 auto; padding-bottom: 40px; }
+
+/* Sections */
+.section { background:var(--bg-canvas); padding:var(--s-4) 16px; border-bottom:var(--hairline); }
+.section+.section { border-top:none; }
+.section-last { border-bottom:none; }
+.section-title {
+  font-family:var(--font-mono);font-size:var(--t-micro);font-weight:500;
+  letter-spacing:0.14em;text-transform:uppercase;color:var(--fg-3);
+  margin:0 0 var(--s-4) 0;
+}
+
+/* Inputs — stacked on mobile */
+.input-grid { display:flex; flex-direction:column; gap:var(--s-3); }
+.field { display:flex;flex-direction:column;gap:var(--s-1); }
+.field-label {
+  font-family:var(--font-mono);font-size:var(--t-micro);font-weight:500;
+  letter-spacing:0.14em;text-transform:uppercase;color:var(--fg-3);
+}
+.field select,
+.field input[type="text"],
+.field input[type="number"] {
+  font-family:var(--font-mono);font-size:16px;font-weight:400;
+  color:var(--fg-1);background:var(--bg-elevated);
+  border:var(--hairline-strong);border-radius:var(--r-2);
+  padding:11px var(--s-3);width:100%;
+  -webkit-appearance:none;outline:none;
+  transition:border-color var(--t-fast) var(--ease);
+}
+.field select:focus,.field input:focus { border-color:var(--ink); }
+
+/* Gender + calc on one row */
+.input-row { display:flex; gap:var(--s-3); align-items:flex-end; }
+.input-row .field { flex:1; }
+
+.gender-toggle {
+  display:flex;border:var(--hairline-strong);border-radius:var(--r-2);overflow:hidden;
+}
+.gender-toggle input { display:none; }
+.gender-toggle label {
+  flex:1;padding:11px 14px;
+  font-family:var(--font-mono);font-size:var(--t-body-sm);font-weight:500;
+  text-align:center;cursor:pointer;
+  background:var(--bg-elevated);color:var(--fg-2);
+  transition:background var(--t-fast) var(--ease),color var(--t-fast) var(--ease);
+  user-select:none;border-right:var(--hairline-strong);
+}
+.gender-toggle label:last-child { border-right:none; }
+.gender-toggle input:checked+label { background:var(--navy);color:var(--volt); }
+
+.calc-btn {
+  font-family:var(--font-mono);font-size:var(--t-body-sm);font-weight:600;
+  letter-spacing:0.06em;text-transform:uppercase;
+  background:var(--volt);color:var(--ink);
+  border:none;border-radius:var(--r-2);
+  padding:11px 20px;cursor:pointer;white-space:nowrap;width:100%;
+  transition:opacity var(--t-fast) var(--ease);margin-top:var(--s-1);
+  height:44px;
+}
+.calc-btn:active { opacity:0.7; }
+
+.error-msg {
+  display:none;font-family:var(--font-mono);font-size:var(--t-body-sm);
+  color:var(--terra);margin-top:var(--s-3);
+}
+.error-msg.visible { display:block; }
+
+/* Summary — stacked tiles on mobile */
+.summary-bar {
+  background:var(--navy);
+  padding:var(--s-4) 16px;
+}
+.summary-tiles { display:grid;grid-template-columns:1fr 1fr;gap:1px;background:rgba(255,255,255,0.08); }
+.summary-tile { background:rgba(255,255,255,0.04);padding:12px 12px; }
+.summary-label {
+  font-family:var(--font-mono);font-size:8px;font-weight:500;
+  letter-spacing:0.14em;text-transform:uppercase;color:rgba(244,242,236,0.38);
+  margin-bottom:4px;
+}
+.summary-value {
+  font-family:var(--font-mono);font-variant-numeric:tabular-nums;
+  font-size:36px;font-weight:500;letter-spacing:-0.04em;line-height:1;color:var(--paper);
+}
+.summary-value.volt { color:var(--volt); }
+.summary-detail-row {
+  margin-top:var(--s-3);padding-top:var(--s-3);
+  border-top:1px solid rgba(255,255,255,0.08);
+  display:flex;flex-wrap:wrap;gap:6px 16px;
+}
+.summary-detail-item {
+  font-family:var(--font-mono);font-size:11px;color:rgba(244,242,236,0.4);
+}
+.summary-detail-item span { color:rgba(244,242,236,0.75);font-weight:500; }
+.summary-placeholder {
+  font-family:var(--font-mono);font-size:13px;color:rgba(244,242,236,0.35);
+  padding:8px 0;
+}
+
+/* Tables — horizontally scrollable on mobile */
+.table-scroll { overflow-x:auto;-webkit-overflow-scrolling:touch;margin:0 -16px;padding:0 16px; }
+.cl-tabular {
+  font-family:var(--font-mono);font-variant-numeric:tabular-nums;
+  font-size:12px;width:100%;border-collapse:collapse;min-width:380px;
+}
+.cl-tabular th {
+  font-family:var(--font-mono);font-weight:500;font-size:var(--t-micro);
+  letter-spacing:0.14em;text-transform:uppercase;color:var(--fg-3);
+  text-align:left;padding:var(--s-2) var(--s-3) var(--s-2) 0;
+  border-bottom:var(--hairline-strong);white-space:nowrap;
+}
+.cl-tabular th.num { text-align:right;padding-right:0; }
+.cl-tabular td {
+  padding:var(--s-2) var(--s-3) var(--s-2) 0;
+  border-bottom:var(--hairline);color:var(--fg-1);white-space:nowrap;
+}
+.cl-tabular td.num { text-align:right;padding-right:0; }
+.cl-tabular td.dim { color:var(--fg-3); }
+.cl-tabular tr.highlight td { background:rgba(222,255,63,0.10);font-weight:600; }
+.cl-tabular tr.highlight td:first-child { position:relative; }
+.cl-tabular tr.highlight td:first-child::before {
+  content:'▶';position:absolute;left:-12px;color:var(--volt);font-size:8px;
+  top:50%;transform:translateY(-50%);
+}
+.cl-tabular tr:last-child td { border-bottom:none; }
+.cl-tabular .na { color:var(--fg-3);font-style:italic; }
+
+/* Zone colours */
+.zone-e{color:#5B9BD5;} .zone-m{color:#70AD47;} .zone-t{color:#ED7D31;}
+.zone-i{color:var(--terra);} .zone-r{color:#9B59B6;}
+
+.footnote {
+  font-family:var(--font-mono);font-size:var(--t-micro);color:var(--fg-3);
+  letter-spacing:0.04em;margin-top:var(--s-4);line-height:1.6;
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="header">
+    <button class="back-btn" onclick="window.location='../'" aria-label="Back">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square"><path d="M15 6l-6 6 6 6"/></svg>
+    </button>
+    <svg class="header-logo" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <rect width="100" height="100" fill="#1B2D4A"/>
+      <line x1="14" y1="14" x2="50" y2="14" stroke="#F4F2EC" stroke-width="10" stroke-linecap="square"/>
+      <line x1="14" y1="14" x2="14" y2="86" stroke="#F4F2EC" stroke-width="10" stroke-linecap="square"/>
+      <line x1="14" y1="86" x2="70" y2="86" stroke="#F4F2EC" stroke-width="10" stroke-linecap="square"/>
+      <rect x="36" y="44" width="12" height="12" fill="#DEFF3F"/>
+    </svg>
+    <div>
+      <div class="header-title">Performance Calculator</div>
+      <div class="header-sub">VDOT + World Athletics</div>
+    </div>
+  </header>
+
+  <!-- INPUT -->
+  <div class="section">
+    <div class="section-title">Input</div>
+    <div class="input-grid">
+
+      <div class="field">
+        <div class="field-label">Distance</div>
+        <select id="distSelect" onchange="onDistChange()">
+          <option value="1500">1500m</option>
+          <option value="1609.34">Mile</option>
+          <option value="3000">3000m</option>
+          <option value="5000" selected>5000m</option>
+          <option value="10000">10 000m</option>
+          <option value="21097.5">Half Marathon</option>
+          <option value="42195">Marathon</option>
+          <option value="50000">50 km</option>
+          <option value="custom">Custom…</option>
+        </select>
+      </div>
+
+      <div class="field" id="customDistField" style="display:none;">
+        <div class="field-label">Custom (metres)</div>
+        <input type="number" id="customDist" placeholder="e.g. 8000" min="200" max="200000" step="1">
+      </div>
+
+      <div class="field">
+        <div class="field-label">Time (mm:ss or h:mm:ss)</div>
+        <input type="text" id="timeInput" placeholder="e.g. 20:00" autocomplete="off" spellcheck="false" inputmode="numeric">
+      </div>
+
+      <div class="input-row">
+        <div class="field">
+          <div class="field-label">Gender</div>
+          <div class="gender-toggle">
+            <input type="radio" name="gender" id="gM" value="men" checked>
+            <label for="gM">M</label>
+            <input type="radio" name="gender" id="gW" value="women">
+            <label for="gW">W</label>
+          </div>
+        </div>
+        <div class="field" style="flex:2;">
+          <div class="field-label">&nbsp;</div>
+          <button class="calc-btn" onclick="calculate()">Calculate</button>
+        </div>
+      </div>
+
+    </div>
+    <div class="error-msg" id="errorMsg"></div>
+  </div>
+
+  <!-- SUMMARY BAR -->
+  <div class="summary-bar" id="summaryBar">
+    <div class="summary-placeholder">Enter a distance and time above, then calculate.</div>
+  </div>
+
+  <!-- EQUIVALENCIES -->
+  <div class="section" id="equivSection" style="display:none;">
+    <div class="section-title">Equivalent Performances</div>
+    <div class="table-scroll">
+      <table class="cl-tabular" id="equivTable">
+        <thead>
+          <tr>
+            <th>Distance</th>
+            <th class="num">VDOT Equiv</th>
+            <th class="num">WA Equiv</th>
+            <th class="num">WA @ VDOT</th>
+          </tr>
+        </thead>
+        <tbody id="equivBody"></tbody>
+      </table>
+    </div>
+    <div class="footnote" id="equivNote"></div>
+  </div>
+
+  <!-- TRAINING ZONES -->
+  <div class="section section-last" id="zonesSection" style="display:none;">
+    <div class="section-title">Training Zones — Daniels</div>
+    <div class="table-scroll">
+      <table class="cl-tabular" id="zonesTable">
+        <thead>
+          <tr>
+            <th>Zone</th>
+            <th class="num">Pace /km</th>
+            <th>Purpose</th>
+            <th class="num">%VO₂</th>
+          </tr>
+        </thead>
+        <tbody id="zonesBody"></tbody>
+      </table>
+    </div>
+    <div class="footnote">
+      Zones from Daniels Running Formula (3rd ed). E is a range; M, T, I, R are target paces.
+    </div>
+  </div>
+
+</div>
+<script>
+'use strict';
+
+/* ============================================================
+   CONSTANTS
+   ============================================================ */
+
+const DISTANCES = {
+  1500:    { label: '1500m',         wa: '1500' },
+  1609.34: { label: 'Mile',          wa: 'mile' },
+  3000:    { label: '3000m',         wa: '3000' },
+  5000:    { label: '5000m',         wa: '5000' },
+  10000:   { label: '10 000m',       wa: '10000' },
+  21097.5: { label: 'Half Marathon', wa: 'hm' },
+  42195:   { label: 'Marathon',      wa: 'marathon' },
+  50000:   { label: '50 km',         wa: null },
+};
+
+// Standard display order for equivalencies table
+const EQUIV_ORDER = [1500, 1609.34, 3000, 5000, 10000, 21097.5, 42195, 50000];
+
+// WA formula coefficients — fitted from official 2025 scoring tables
+// Formula: Score = floor(a * (b - T)^2),  T = b - sqrt(Score / a)
+// All events c ≈ 2.000 exactly (pure quadratic)
+const WA = {
+  men: {
+    '1500':    { a: 0.0406563,    b: 385.00 },
+    'mile':    { a: 0.0351046,    b: 414.99 },
+    '3000':    { a: 0.00814614,   b: 840.01 },
+    '5000':    { a: 0.00277547,   b: 1440.05 },
+    '10000':   { a: 0.000524017,  b: 3149.99 },
+    'hm':      { a: 9.46598e-5,   b: 7139.65 },
+    'marathon':{ a: 2.00548e-5,   b: 15300.10 },
+  },
+  women: {
+    '1500':    { a: 0.0134004,    b: 539.99 },
+    'mile':    { a: 0.0116499,    b: 580.00 },
+    '3000':    { a: 0.00253903,   b: 1199.99 },
+    '5000':    { a: 0.000808012,  b: 2099.99 },
+    '10000':   { a: 0.000171198,  b: 4500.00 },
+    'hm':      { a: 2.59436e-5,   b: 10797.67 },
+    'marathon':{ a: 5.3919e-6,    b: 23399.30 },
+  }
+};
+
+// WA event distances (m) — for interpolation when input is non-standard
+const WA_EVENT_DIST = {
+  '1500':     1500,
+  'mile':     1609.34,
+  '3000':     3000,
+  '5000':     5000,
+  '10000':    10000,
+  'hm':       21097.5,
+  'marathon': 42195,
+};
+
+/* ============================================================
+   DANIELS VDOT ENGINE
+   ============================================================ */
+
+/** VO₂ demand for a given speed (m/min) */
+function vo2AtVelocity(v) {
+  return -4.60 + 0.182258 * v + 0.000104 * v * v;
+}
+
+/** Fraction of VO₂max that can be sustained for t minutes */
+function pctVO2maxAtDuration(tMin) {
+  return 0.8
+    + 0.1894393 * Math.exp(-0.012778 * tMin)
+    + 0.2989558 * Math.exp(-0.1932605 * tMin);
+}
+
+/** Calculate VDOT from a performance */
+function calcVDOT(distM, timeSec) {
+  if (timeSec <= 0 || distM <= 0) return NaN;
+  const tMin = timeSec / 60;
+  const v    = distM / tMin;         // m/min
+  const vo2  = vo2AtVelocity(v);
+  const pct  = pctVO2maxAtDuration(tMin);
+  return vo2 / pct;
+}
+
+/** Velocity (m/min) for a given %VO₂max at a given VDOT */
+function velocityAtPctVO2(vdot, pct) {
+  const target = vdot * pct;
+  // Solve quadratic: 0.000104v² + 0.182258v - (4.60 + target) = 0
+  const A = 0.000104;
+  const B = 0.182258;
+  const C = -(4.60 + target);
+  return (-B + Math.sqrt(B * B - 4 * A * C)) / (2 * A);
+}
+
+/** Pace (seconds/km) for a given %VO₂max at a given VDOT */
+function paceAtPct(vdot, pct) {
+  return 60000 / velocityAtPctVO2(vdot, pct);
+}
+
+/**
+ * Find the time (seconds) at a given distance for a given VDOT.
+ * Uses binary search — stable, no solver issues.
+ *
+ * Bounds: time_sec = dist_m × 60 / v_mpm
+ *   lo: 600 m/min (very fast — sub-1km pace)
+ *   hi: 20 m/min (slow walk — handles any realistic distance)
+ */
+function vdotToTime(vdot, distM) {
+  let lo = distM * 60 / 600;   // fastest realistic: 600 m/min
+  let hi = distM * 60 / 20;    // slowest: 20 m/min
+  for (let i = 0; i < 64; i++) {
+    const mid = (lo + hi) * 0.5;
+    if (calcVDOT(distM, mid) > vdot) lo = mid;   // too fast → increase time
+    else                              hi = mid;   // too slow → decrease time
+  }
+  return (lo + hi) * 0.5;
+}
+
+/* ============================================================
+   WORLD ATHLETICS ENGINE
+   ============================================================ */
+
+/** WA score for a named event (key string) and time in seconds */
+function waScore(eventKey, timeSec, gender) {
+  const c = WA[gender][eventKey];
+  if (!c) return null;
+  const diff = c.b - timeSec;
+  if (diff <= 0) return 0;
+  return Math.floor(c.a * diff * diff);
+}
+
+/** Time (seconds) for a named event at a given WA score */
+function waTime(eventKey, score, gender) {
+  const c = WA[gender][eventKey];
+  if (!c || score <= 0) return null;
+  const t = c.b - Math.sqrt(score / c.a);
+  return t > 0 ? t : null;
+}
+
+/**
+ * Best-effort WA score for an arbitrary distance.
+ * Uses the nearest WA event if no exact match, or interpolates.
+ */
+function waScoreForDist(distM, timeSec, gender) {
+  // Exact match?
+  const exact = distToWAKey(distM);
+  if (exact) return waScore(exact, timeSec, gender);
+
+  // Interpolate between two adjacent WA events
+  const events = Object.entries(WA_EVENT_DIST).sort((a, b) => a[1] - b[1]);
+  let lo = null, hi = null;
+  for (const [k, d] of events) {
+    if (d <= distM) lo = [k, d];
+    else if (!hi)   hi = [k, d];
+  }
+  if (!lo) return waScore(hi[0], timeSec, gender); // below 1500m
+  if (!hi) return waScore(lo[0], timeSec, gender); // above marathon
+
+  // Compute scores at the bounding events using VDOT-derived equivalent times
+  const vdot = calcVDOT(distM, timeSec);
+  const tLo = vdotToTime(vdot, lo[1]);
+  const tHi = vdotToTime(vdot, hi[1]);
+  const sLo = waScore(lo[0], tLo, gender);
+  const sHi = waScore(hi[0], tHi, gender);
+
+  // Linear interpolate by log(distance)
+  const f = (Math.log(distM) - Math.log(lo[1])) / (Math.log(hi[1]) - Math.log(lo[1]));
+  return Math.round(sLo + f * (sHi - sLo));
+}
+
+/** Map a distance (m) to a WA event key, or null */
+function distToWAKey(distM) {
+  for (const [k, d] of Object.entries(WA_EVENT_DIST)) {
+    if (Math.abs(distM - d) < 1) return k;
+  }
+  return null;
+}
+
+/* ============================================================
+   TRAINING ZONES
+   ============================================================ */
+
+/**
+ * Compute Daniels training zones for a given VDOT.
+ * Returns paces in seconds/km.
+ *
+ * Percentages verified against Daniels Table 2 (Running Formula, 3rd ed):
+ *   E range:  59–74% VO₂max (Daniels' stated range; 70% = the table reference value)
+ *   M:  81%   — verified: VDOT 50 → 4:32/km (table: 7:17/mile = 4:32/km ✓)
+ *   T:  88%   — verified: VDOT 50 → 4:15/km (table: 4:15 ✓)
+ *   I:  97%   — verified: VDOT 50 → 3:56/km (table: 3:55 ✓)
+ *   R: 107%   — verified: VDOT 50 → 3:38/km (table R400=87s → 3:38/km ✓)
+ */
+function getZones(vdot) {
+  return {
+    e_slow: paceAtPct(vdot, 0.59),   // lower bound of easy range
+    e_fast: paceAtPct(vdot, 0.74),   // upper bound of easy range
+    e_ref:  paceAtPct(vdot, 0.70),   // table reference value (Table 2 column)
+    m:      paceAtPct(vdot, 0.81),
+    t:      paceAtPct(vdot, 0.88),
+    i:      paceAtPct(vdot, 0.97),
+    r:      paceAtPct(vdot, 1.07),
+  };
+}
+
+/* ============================================================
+   FORMATTING HELPERS
+   ============================================================ */
+
+/** Format seconds as mm:ss or h:mm:ss */
+function fmtTime(s) {
+  if (!isFinite(s) || s <= 0) return '—';
+  s = Math.round(s * 10) / 10;
+  const hrs = Math.floor(s / 3600);
+  const min = Math.floor((s % 3600) / 60);
+  const sec = s % 60;
+  if (hrs > 0) {
+    return `${hrs}:${String(min).padStart(2,'0')}:${sec.toFixed(0).padStart(2,'0')}`;
+  }
+  return `${min}:${sec.toFixed(1).padStart(4,'0')}`;
+}
+
+/** Format seconds/km pace as m:ss/km */
+function fmtPace(secPerKm) {
+  if (!isFinite(secPerKm) || secPerKm <= 0) return '—';
+  const m = Math.floor(secPerKm / 60);
+  const s = Math.round(secPerKm % 60);
+  return `${m}:${String(s).padStart(2,'0')}`;
+}
+
+/** Format seconds/km as range "m:ss – m:ss /km" */
+function fmtPaceRange(lo, hi) {
+  return `${fmtPace(hi)} – ${fmtPace(lo)} /km`;  // hi = slower, lo = faster
+}
+
+/** Parse time string "mm:ss", "m:ss", "h:mm:ss" → seconds */
+function parseTime(str) {
+  str = str.trim().replace(/\s/g, '');
+  const parts = str.split(':');
+  if (parts.length === 2) {
+    const m = parseInt(parts[0], 10);
+    const s = parseFloat(parts[1]);
+    if (isNaN(m) || isNaN(s)) return null;
+    return m * 60 + s;
+  }
+  if (parts.length === 3) {
+    const h = parseInt(parts[0], 10);
+    const m = parseInt(parts[1], 10);
+    const s = parseFloat(parts[2]);
+    if (isNaN(h) || isNaN(m) || isNaN(s)) return null;
+    return h * 3600 + m * 60 + s;
+  }
+  return null;
+}
+
+/* ============================================================
+   UI HANDLERS
+   ============================================================ */
+
+function onDistChange() {
+  const val = document.getElementById('distSelect').value;
+  const cf  = document.getElementById('customDistField');
+  cf.style.display = (val === 'custom') ? '' : 'none';
+}
+
+function getInputDistance() {
+  const val = document.getElementById('distSelect').value;
+  if (val === 'custom') {
+    const n = parseFloat(document.getElementById('customDist').value);
+    return isNaN(n) ? null : n;
+  }
+  return parseFloat(val);
+}
+
+function getGender() {
+  return document.querySelector('input[name="gender"]:checked').value;
+}
+
+function showError(msg) {
+  const el = document.getElementById('errorMsg');
+  el.textContent = msg;
+  el.classList.add('visible');
+}
+function clearError() {
+  document.getElementById('errorMsg').classList.remove('visible');
+}
+
+/* ============================================================
+   MAIN CALCULATION
+   ============================================================ */
+
+function calculate() {
+  clearError();
+
+  // --- parse inputs ---
+  const distM = getInputDistance();
+  if (!distM || distM < 200) {
+    showError('Enter a valid distance (minimum 200 m).');
+    return;
+  }
+
+  const timeStr = document.getElementById('timeInput').value;
+  const timeSec = parseTime(timeStr);
+  if (!timeSec || timeSec <= 0) {
+    showError('Enter a valid time — format mm:ss or h:mm:ss (e.g. 20:00 or 1:30:00).');
+    return;
+  }
+
+  const gender = getGender();
+
+  // --- VDOT ---
+  const vdot = calcVDOT(distM, timeSec);
+  if (!isFinite(vdot) || vdot < 10 || vdot > 110) {
+    showError('VDOT out of range. Check your inputs.');
+    return;
+  }
+
+  // --- WA score for input performance ---
+  const inputWAKey = distToWAKey(distM);
+  const waScoreVal = inputWAKey
+    ? waScore(inputWAKey, timeSec, gender)
+    : waScoreForDist(distM, timeSec, gender);
+
+  // --- render ---
+  renderSummary(vdot, waScoreVal, distM, timeSec, gender);
+  renderEquiv(vdot, waScoreVal, distM, gender);
+  renderZones(vdot);
+}
+
+/* ============================================================
+   RENDER: SUMMARY
+   ============================================================ */
+
+function renderSummary(vdot, waScoreVal, distM, timeSec, gender) {
+  const bar = document.getElementById('summaryBar');
+  const pace = (distM >= 1000) ? (timeSec / distM * 1000) : null; // sec/km
+
+  bar.innerHTML = `
+    <div class="summary-tiles">
+      <div class="summary-tile">
+        <div class="summary-label">VDOT</div>
+        <div class="summary-value volt">${vdot.toFixed(1)}</div>
+      </div>
+      <div class="summary-tile">
+        <div class="summary-label">WA Score</div>
+        <div class="summary-value">${waScoreVal !== null ? waScoreVal : '—'}</div>
+      </div>
+    </div>
+    <div class="summary-detail-row">
+      <div class="summary-detail-item">Distance <span>${distLabel(distM)}</span></div>
+      <div class="summary-detail-item">Time <span>${fmtTime(timeSec)}</span></div>
+      ${pace ? `<div class="summary-detail-item">Pace <span>${fmtPace(pace)} /km</span></div>` : ''}
+      <div class="summary-detail-item">Gender <span>${gender === 'men' ? 'Male' : 'Female'}</span></div>
+    </div>
+  `;
+}
+
+/* ============================================================
+   RENDER: EQUIVALENCIES
+   ============================================================ */
+
+function renderEquiv(vdot, waScoreVal, inputDistM, gender) {
+  const tbody   = document.getElementById('equivBody');
+  const note    = document.getElementById('equivNote');
+  const section = document.getElementById('equivSection');
+
+  const inputWAKey = distToWAKey(inputDistM);
+  let rows = '';
+  let has50k = false;
+  let hasWADivergence = false;
+
+  for (const distM of EQUIV_ORDER) {
+    const isInput = Math.abs(distM - inputDistM) < 1;
+    const info    = DISTANCES[distM];
+    if (!info) continue;
+
+    // ── VDOT equivalent time (Daniels: same VO₂max demand) ──────────────
+    const equivT = vdotToTime(vdot, distM);
+
+    // ── WA equivalent time (same WA score as input) ──────────────────────
+    // waT is the time at this event that scores exactly waScoreVal points.
+    // By construction, every row's waT will produce the same score — that's
+    // the whole point of WA equivalence.
+    let waT  = null;
+    let waAtVdot = null;   // WA score at the VDOT-equiv time (divergence indicator)
+
+    if (info.wa && waScoreVal !== null) {
+      waT       = waTime(info.wa, waScoreVal, gender);
+      waAtVdot  = waScore(info.wa, equivT, gender);
+      if (waAtVdot !== waScoreVal) hasWADivergence = true;
+    }
+
+    if (distM === 50000) has50k = true;
+
+    // Render divergence as coloured delta (positive = VDOT time is "worth more" by WA)
+    let divergenceCell = '<span class="na">—</span>';
+    if (waAtVdot !== null) {
+      const delta = waAtVdot - waScoreVal;
+      const sign  = delta >= 0 ? '+' : '';
+      const cls   = delta > 5 ? 'style="color:var(--terra)"'
+                  : delta < -5 ? 'style="color:#5B9BD5"'
+                  : 'style="color:var(--fg-3)"';
+      divergenceCell = `<span ${cls}>${waAtVdot} (${sign}${delta})</span>`;
+    }
+
+    rows += `
+      <tr class="${isInput ? 'highlight' : ''}">
+        <td>${info.label}</td>
+        <td class="num">${fmtTime(equivT)}</td>
+        <td class="num">${waT ? fmtTime(waT) : '<span class="na">n/a</span>'}</td>
+        <td class="num">${divergenceCell}</td>
+      </tr>`;
+  }
+
+  tbody.innerHTML = rows;
+
+  let notes = [
+    `WA Equiv — all these times score exactly <strong>${waScoreVal !== null ? waScoreVal : '—'} WA points</strong>, the same as your input.`,
+    `WA @ VDOT time — the WA score you'd get for the VDOT-equivalent time. Divergence from your input score (±) shows where the two systems disagree about event equivalence.`,
+  ];
+  if (has50k) notes.push('50 km VDOT equivalent is an extrapolation — Daniels formula was not validated for ultra distances.');
+  if (!inputWAKey) notes.push('WA score for the input distance estimated by interpolation between adjacent WA events.');
+
+  note.innerHTML = notes.join(' ');
+  section.style.display = '';
+}
+
+/* ============================================================
+   RENDER: TRAINING ZONES
+   ============================================================ */
+
+function renderZones(vdot) {
+  const tbody   = document.getElementById('zonesBody');
+  const section = document.getElementById('zonesSection');
+  const z = getZones(vdot);
+
+  const rows = [
+    {
+      cls: 'zone-e',
+      zone: 'E — Easy / Long',
+      // Range: 59–74% VO₂max. Slower end = 59%, faster end = 74%.
+      // "fmtPaceRange(fast, slow)" prints faster – slower order
+      pace: `${fmtPace(z.e_fast)} – ${fmtPace(z.e_slow)} /km`,
+      pct: '59 – 74%',
+      purpose: 'Base aerobic volume, recovery, long run. Ref pace: ' + fmtPace(z.e_ref) + '/km',
+    },
+    {
+      cls: 'zone-m',
+      zone: 'M — Marathon',
+      pace: `${fmtPace(z.m)} /km`,
+      pct: '81%',
+      purpose: 'Goal marathon pace; sustained aerobic-LT stimulus',
+    },
+    {
+      cls: 'zone-t',
+      zone: 'T — Threshold',
+      pace: `${fmtPace(z.t)} /km`,
+      pct: '88%',
+      purpose: 'Continuous 20–40 min tempo; raises lactate threshold',
+    },
+    {
+      cls: 'zone-i',
+      zone: 'I — Interval',
+      pace: `${fmtPace(z.i)} /km`,
+      pct: '97%',
+      purpose: 'VO₂max stimulus; 3–5 min reps (e.g. 1 km, 1200 m)',
+    },
+    {
+      cls: 'zone-r',
+      zone: 'R — Repetition',
+      pace: `${fmtPace(z.r)} /km`,
+      pct: '107%',
+      purpose: 'Speed / economy; 200–400 m with full recovery',
+    },
+  ];
+
+  tbody.innerHTML = rows.map(r => `
+    <tr>
+      <td class="${r.cls}" style="font-weight:600;">${r.zone}</td>
+      <td class="num">${r.pace}</td>
+      <td style="color:var(--fg-2);">${r.purpose}</td>
+      <td class="num dim">${r.pct}</td>
+    </tr>`).join('');
+
+  section.style.display = '';
+}
+
+/* ============================================================
+   HELPERS
+   ============================================================ */
+
+function distLabel(distM) {
+  const d = DISTANCES[distM];
+  if (d) return d.label;
+  if (distM < 1000) return `${Math.round(distM)} m`;
+  return `${(distM / 1000).toFixed(2).replace(/\.?0+$/, '')} km`;
+}
+
+/* Allow Enter key to trigger calculate */
+document.getElementById('timeInput').addEventListener('keydown', e => {
+  if (e.key === 'Enter') calculate();
+});
+document.getElementById('distSelect').addEventListener('keydown', e => {
+  if (e.key === 'Enter') calculate();
+});
+</script>
+</body>
+</html>
