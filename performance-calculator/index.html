@@ -257,7 +257,14 @@ body { padding-bottom: env(safe-area-inset-bottom, 24px); }
 
       <div class="field">
         <div class="field-label">Time (mm:ss or h:mm:ss)</div>
-        <input type="text" id="timeInput" placeholder="e.g. 20:00" autocomplete="off" spellcheck="false">
+        <input
+          type="text"
+          id="timeInput"
+          placeholder="e.g. 20:00"
+          autocomplete="off"
+          autocapitalize="off"
+          spellcheck="false"
+          inputmode="text">
       </div>
 
       <div class="input-row">
@@ -820,6 +827,37 @@ function distLabel(distM) {
   if (d) return d.label;
   if (distM < 1000) return `${Math.round(distM)} m`;
   return `${(distM / 1000).toFixed(2).replace(/\.?0+$/, '')} km`;
+}
+
+// Auto-format time input
+const timeInput = document.getElementById('timeInput');
+
+if (timeInput) {
+  timeInput.addEventListener('input', function () {
+    let v = this.value.replace(/[^\d]/g, '');
+
+    if (v.length === 0) {
+      this.value = '';
+      return;
+    }
+
+    if (v.length <= 2) {
+      this.value = v;
+      return;
+    }
+
+    if (v.length <= 4) {
+      const mm = v.slice(0, -2);
+      const ss = v.slice(-2);
+      this.value = `${mm}:${ss}`;
+      return;
+    }
+
+    const h = v.slice(0, -4);
+    const mm = v.slice(-4, -2);
+    const ss = v.slice(-2);
+    this.value = `${h}:${mm}:${ss}`;
+  });
 }
 
 /* Allow Enter key to trigger calculate */
